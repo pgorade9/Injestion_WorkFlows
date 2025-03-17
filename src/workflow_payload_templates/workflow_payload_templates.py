@@ -1,14 +1,13 @@
 import requests
 
 
-def get_workflow_payload(dag, data_partition_id, adme_dns_host, token, sub_key, file_id, file_name, sToken):
+def get_workflow_payload(dag, data_partition_id, adme_dns_host, token, sub_key, file_id, file_name):
     print("Creating Workflow Payload ***************************")
     print(f"{dag=}")
     workflow_payload = {
         "executionContext": {
             "dataPartitionId": f"{data_partition_id}",
-            "id": f"{file_id}",
-            "sToken": sToken
+            "id": f"{file_id}"
         }
     }
 

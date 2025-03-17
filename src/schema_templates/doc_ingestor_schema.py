@@ -136,7 +136,7 @@ def get_schema_template():
                 "$ref": "#/definitions/documentData"
             },
             "kind": {
-                "default": "slb-osdu-prod-des-prod-testing:Schlumberger:document:3.0.0",
+                "default": "slb:pg:document:3.0.0",
                 "description": "OSDU demo wellbore kind specification",
                 "title": "Wellbore Kind",
                 "type": "string"

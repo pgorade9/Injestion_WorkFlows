@@ -212,7 +212,7 @@ def create_file_metadata(wellbore_id=None):
         exit(1)
 
 
-def encode_client_credentials(client_id: str, client_secret: str) -> str:
+def encode_client_credentials() -> str:
     """
     Combines client_id and client_secret with a colon in between and Base64 encodes the result.
 
@@ -220,7 +220,10 @@ def encode_client_credentials(client_id: str, client_secret: str) -> str:
     :param client_secret: OSDU client secret
     :return: Base64-encoded string of "client_id:client_secret"
     """
-    credentials = f"{client_id}:{client_secret}".encode("utf-8")
+    ldap = "pgorade@slb.com"
+    oid = "b0fcd013-8218-4b3c-9787-70f1b1d603bb"
+    exp = "3600"
+    credentials = f"{ldap}:{oid}:{exp}".encode("utf-8")
     encoded_credentials = base64.b64encode(credentials).decode("utf-8")
     return encoded_credentials
 
@@ -231,7 +234,6 @@ def create_workflow_payload(file_id):
     payload = {"runId": random_uuid, "executionContext": {}}
     payload["executionContext"]["dataPartitionId"] = data_partition_id
     payload["executionContext"]["id"] = file_id
-    payload["executionContext"]["sToken"] = encode_client_credentials(client_id=client_id, client_secret=client_secret)
     print(f"workflow {payload=}")
     return payload
 
@@ -243,10 +245,6 @@ def create_dag_ui_payload(message, dag_name):
                "authToken": osdu_token, "user_email_id": client_id,
                "workflow_name": dag_name
                }
-    # dag_payload = {"run_id": message["runId"],
-    #                "execution_context": message["executionContext"],
-    #                "authToken": osdu_token, "user_email_id": client_id,
-    #                "workflow_name": dag_name}
     print(json.dumps(payload, indent=2))
 
 
@@ -551,15 +549,14 @@ if __name__ == "__main__":
     print(filemetadata_id)
     logging.info(f"File Generic Id (Metadata) = {filemetadata_id}")
     # workflow_payload = create_workflow_payload(filemetadata_id)
-    sToken = encode_client_credentials(client_id, client_secret)
     workflow_payload = get_workflow_payload(dag_name,
                                             data_partition_id,
                                             adme_dns_host,
                                             osdu_token,
                                             happyme_subscription_key,
                                             filemetadata_id,
-                                            filename,
-                                            sToken)
+                                            filename
+                                            )
     print(f"{workflow_payload=}")
     create_dag_ui_payload(workflow_payload, dag_name)
 
