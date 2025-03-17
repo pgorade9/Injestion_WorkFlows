@@ -57,7 +57,7 @@ def get_token(env_name):
             "headers": {
                 "content-type": "application/x-www-form-urlencoded"},
             "url": "https://csi.slb.com/v2/token",
-            "payload": f"grant_type=client_credentials&client_id={client_id}&client_secret={client_secret}&scope={scope}"
+            "payload": f"grant_type=client_credentials&client_id={client_id}&client_secret={client_secret}&scope={scope} {client_id}"
         },
 
     }
