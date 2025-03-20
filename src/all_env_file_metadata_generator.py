@@ -219,9 +219,9 @@ if __name__ == "__main__":
         data_partition_id = keyvault[env]["data_partition_id"]
         configure_logging(data_partition_id)
         # Pre-PAAS
-        acl_domain = "enterprisedata.cloud.slb-ds.com" if env == "evt" else "enterprisedata.slb.com"
+        # acl_domain = "enterprisedata.cloud.slb-ds.com" if env == "evt" else "enterprisedata.slb.com"
         # SEDS
-        # acl_domain = "dataservices.energy"
+        acl_domain = "dataservices.energy"
         acl_user = "default"
         own_acl_role = "owners"
         view_acl_role = "viewers"
