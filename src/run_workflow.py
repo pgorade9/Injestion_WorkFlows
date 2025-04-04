@@ -12,6 +12,7 @@ import requests
 from pydantic import BaseModel
 from retry import retry
 
+from configuration import keyvault
 from src.filemetadata_templates.filemetadata_template import get_filemetadata_record_template
 from src.schema_templates import (csv_parser_schema, wellbore_ingestor_schema, shapefile_ingestor_schema,
                                   doc_ingestor_schema, manifest_schema)
@@ -40,6 +41,27 @@ mime_type = {
 
 @retry(exceptions=Exception, tries=2, delay=1, logger=logger)
 def get_token(env_name):
+    if keyvault[env].get("bearer-token") not in [None, ""]:
+        return keyvault[env]["bearer-token"]
+    scope = f"{keyvault[env]["scope"]} {keyvault[env]["client_id"]}" if env.endswith('ltops') else keyvault[env][
+        "scope"]
+    print(f"{scope=}")
+    response = requests.request(method="POST",
+                                url=keyvault[env]["token_url"],
+                                headers={"content-type": "application/x-www-form-urlencoded"},
+                                data=f"grant_type=client_credentials&client_id={keyvault[env]["client_id"]}&client_secret={keyvault[env]["client_secret"]}&scope={scope}")
+
+    if response.status_code == 200:
+        print(f"********* Token Generated Successfully ************")
+        response_json = response.json()
+        return "Bearer " + response_json["access_token"]
+    else:
+        print(f"Error occurred while creating token. {response.text}")
+        exit(1)
+
+
+@retry(exceptions=Exception, tries=2, delay=1, logger=logger)
+def _get_token(env_name):
     global platform
     if env_name.startswith("saas"):
         platform = "saas"
@@ -127,7 +149,7 @@ def create_file_metadata(wellbore_id=None):
     response = requests.request(method="GET", url=file_metadata_upload_url, headers=headers, timeout=TIME_OUT)
     print(response.text)
     if response.status_code == 401:
-        print("Invalid or Expired Token")
+        print(f"Invalid or Expired Token for {file_metadata_upload_url=}")
         exit(1)
 
     elif response.status_code == 403:
